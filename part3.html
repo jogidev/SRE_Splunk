@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk Queries for SRE - Part 3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="background-glow"></div>
+
+    <header class="hero">
+        <div class="container">
+            <div class="badge">SRE Toolkit</div>
+            <h1>Splunk Queries for SRE <span class="accent">Part 3</span></h1>
+            <p class="subtitle">Observability Coverage Matrix & Optimal Log Parsing.</p>
+            <div class="nav-buttons">
+                <a href="part2.html" class="nav-btn"><i class="fa-solid fa-arrow-left"></i> Back to Part 2</a>
+                <a href="index.html" class="nav-btn">Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Observability Matrix Section -->
+        <section class="card" id="observability-matrix">
+            <div class="card-header">
+                <div class="icon-box matrix-icon">
+                    <i class="fa-solid fa-table-cells"></i>
+                </div>
+                <div class="header-text">
+                    <h2>Observability Coverage Matrix</h2>
+                    <p>Ensure full visibility across Web, App, and DB layers.</p>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="guideline">
+                    <h3><i class="fa-solid fa-lightbulb"></i> Coverage Strategy</h3>
+                    <p>Both Dynatrace (DT) and Splunk are needed. DT provides deep code-level tracing and APM, while
+                        Splunk handles long-term log retention, compliance, and custom business analytics.</p>
+                </div>
+
+                <div class="table-container">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th>Layer</th>
+                                <th>Component</th>
+                                <th>Log Type</th>
+                                <th>Splunk SourceType</th>
+                                <th>Dynatrace Coverage</th>
+                                <th>Recommended Regex (Splunk)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Web Layer -->
+                            <tr>
+                                <td rowspan="2" class="layer-web">Web</td>
+                                <td>Nginx / Apache</td>
+                                <td>Access Logs</td>
+                                <td><code>access_combined</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> RUM / Auto-injection</td>
+                                <td><code>^(\S+) \S+ \S+ \[([^\]]+)\] "(\S+) (\S+) \S+" (\d+) (\d+)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Nginx / Apache</td>
+                                <td>Error Logs</td>
+                                <td><code>error_log</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> Process Monitoring</td>
+                                <td><code>^(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}) \[(\w+)\] (\d+)#(\d+): \*(\d+) (.+?)(?:, client: (.+?))?</code>
+                                </td>
+                            </tr>
+
+                            <!-- App Layer -->
+                            <tr>
+                                <td rowspan="3" class="layer-app">App</td>
+                                <td>Tomcat / Java</td>
+                                <td>Catalina / System.out</td>
+                                <td><code>catalina_out</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> Deep Dive / Stack Traces</td>
+                                <td><code>^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) (\w+) \[([^\]]+)\] (.+)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Node.js / PM2</td>
+                                <td>App Logs (JSON)</td>
+                                <td><code>app_json</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> Services / Traces</td>
+                                <td><em>(Use JSON extraction)</em><br><code>KV_MODE = json</code></td>
+                            </tr>
+                            <tr>
+                                <td>Java / JVM</td>
+                                <td>GC Logs</td>
+                                <td><code>gc_log</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> JVM Metrics</td>
+                                <td><code>^\[(\d+\.\d+)s\]\[(\w+)\]\[(\w+)\] (.+)</code></td>
+                            </tr>
+
+                            <!-- DB Layer -->
+                            <tr>
+                                <td rowspan="2" class="layer-db">DB</td>
+                                <td>MySQL / Postgres</td>
+                                <td>Slow Query Log</td>
+                                <td><code>mysql_slow</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> Database Services</td>
+                                <td><code>^# Time: (\d{6}\s+\d{1,2}:\d{2}:\d{2})\s+# User@Host: (\S+)\[\S+\] @\s+\[(\S+)\]\s+# Query_time: ([\d\.]+)</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MySQL / Postgres</td>
+                                <td>Error Log</td>
+                                <td><code>mysql_error</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> Process Availability</td>
+                                <td><code>^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (\d+) \[(\w+)\] \[([^\]]+)\] (.+)</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Best Practices Section -->
+        <section class="card" id="regex-optimization">
+            <div class="card-header">
+                <div class="icon-box regex-icon">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+                <div class="header-text">
+                    <h2>Regex Optimization Guidelines</h2>
+                    <p>Capture logs in an optimal fashion to reduce CPU load on indexers.</p>
+                </div>
+            </div>
+            <div class="card-content">
+                <ul class="feature-list">
+                    <li>
+                        <i class="fa-solid fa-anchor"></i>
+                        <div>
+                            <strong>Anchor Your Regex</strong>
+                            <p>Always start your regex with <code>^</code>. This tells the engine to start matching at
+                                the beginning of the line, preventing it from scanning the entire string unnecessarily.
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-ban"></i>
+                        <div>
+                            <strong>Avoid Greedy Quantifiers</strong>
+                            <p>Avoid <code>.*</code> where possible. Use specific character classes like
+                                <code>[^\]]+</code> (match everything except a closing bracket) or lazy quantifiers
+                                <code>.*?</code> to prevent backtracking.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-bolt"></i>
+                        <div>
+                            <strong>Use JSON Where Possible</strong>
+                            <p>Structured logging (JSON) eliminates the need for complex regex at search time. Set
+                                <code>KV_MODE = json</code> in <code>props.conf</code> for automatic extraction.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Designed for SRE Excellence &bull; <a href="https://github.com/jogidev/SRE_Splunk">View on GitHub</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
