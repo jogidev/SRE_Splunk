@@ -14,152 +14,146 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
-    <div class="background-glow"></div>
+</header>
 
-    <header class="hero">
-        <div class="container">
-            <div class="badge">SRE Toolkit</div>
-            <h1>Splunk Queries for SRE <span class="accent">Part 1</span></h1>
-            <p class="subtitle">Master the Four Golden Signals. Improve resiliency. Reduce MTTR.</p>
-        </div>
-    </header>
+<main class="container">
 
-    <main class="container">
-
-        <!-- Latency Section -->
-        <section class="card" id="latency">
-            <div class="card-header">
-                <div class="icon-box latency-icon">
-                    <i class="fa-solid fa-stopwatch"></i>
-                </div>
-                <div class="header-text">
-                    <h2>Latency</h2>
-                    <p>Measure the time it takes to service a request.</p>
-                </div>
+    <!-- Latency Section -->
+    <section class="card" id="latency">
+        <div class="card-header">
+            <div class="icon-box latency-icon">
+                <i class="fa-solid fa-stopwatch"></i>
             </div>
-            <div class="card-content">
-                <div class="guideline">
-                    <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
-                    <p>High latency directly impacts user experience. Distinguish between successful requests and
-                        errors, as error latency is often different.</p>
-                </div>
+            <div class="header-text">
+                <h2>Latency</h2>
+                <p>Measure the time it takes to service a request.</p>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="guideline">
+                <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
+                <p>High latency directly impacts user experience. Distinguish between successful requests and
+                    errors, as error latency is often different.</p>
+            </div>
 
-                <div class="query-block">
-                    <div class="query-header">
-                        <span>Average & 95th Percentile Response Time</span>
-                        <button class="copy-btn" onclick="copyToClipboard('query-latency')"><i
-                                class="fa-regular fa-copy"></i> Copy</button>
-                    </div>
-                    <pre><code id="query-latency" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
+            <div class="query-block">
+                <div class="query-header">
+                    <span>Average & 95th Percentile Response Time</span>
+                    <button class="copy-btn" onclick="copyToClipboard('query-latency')"><i
+                            class="fa-regular fa-copy"></i>
+                        Copy</button>
+                </div>
+                <pre><code id="query-latency" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
 | timechart span=5m avg(duration) as avg_latency, p95(duration) as p95_latency 
 | eval sla_threshold=500 
 | where p95_latency > sla_threshold</code></pre>
-                </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Traffic Section -->
-        <section class="card" id="traffic">
-            <div class="card-header">
-                <div class="icon-box traffic-icon">
-                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                </div>
-                <div class="header-text">
-                    <h2>Traffic</h2>
-                    <p>A measure of how much demand is being placed on your system.</p>
-                </div>
+    <!-- Traffic Section -->
+    <section class="card" id="traffic">
+        <div class="card-header">
+            <div class="icon-box traffic-icon">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
             </div>
-            <div class="card-content">
-                <div class="guideline">
-                    <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
-                    <p>Unexpected spikes can lead to saturation. Monitor requests per second (RPS) to understand load
-                        patterns.</p>
-                </div>
+            <div class="header-text">
+                <h2>Traffic</h2>
+                <p>A measure of how much demand is being placed on your system.</p>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="guideline">
+                <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
+                <p>Unexpected spikes can lead to saturation. Monitor requests per second (RPS) to understand load
+                    patterns.</p>
+            </div>
 
-                <div class="query-block">
-                    <div class="query-header">
-                        <span>Requests Per Minute by Endpoint</span>
-                        <button class="copy-btn" onclick="copyToClipboard('query-traffic')"><i
-                                class="fa-regular fa-copy"></i> Copy</button>
-                    </div>
-                    <pre><code id="query-traffic" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
+            <div class="query-block">
+                <div class="query-header">
+                    <span>Requests Per Minute by Endpoint</span>
+                    <button class="copy-btn" onclick="copyToClipboard('query-traffic')"><i
+                            class="fa-regular fa-copy"></i>
+                        Copy</button>
+                </div>
+                <pre><code id="query-traffic" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
 | timechart span=1m count as requests_per_min by uri_path 
 | addtotals</code></pre>
-                </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Errors Section -->
-        <section class="card" id="errors">
-            <div class="card-header">
-                <div class="icon-box error-icon">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div class="header-text">
-                    <h2>Errors</h2>
-                    <p>The rate of requests that fail.</p>
-                </div>
+    <!-- Errors Section -->
+    <section class="card" id="errors">
+        <div class="card-header">
+            <div class="icon-box error-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <div class="card-content">
-                <div class="guideline">
-                    <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
-                    <p>Explicit errors (5xx) and implicit errors (200 OK but wrong content) must be tracked. Zero errors
-                        is the goal.</p>
-                </div>
+            <div class="header-text">
+                <h2>Errors</h2>
+                <p>The rate of requests that fail.</p>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="guideline">
+                <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
+                <p>Explicit errors (5xx) and implicit errors (200 OK but wrong content) must be tracked. Zero errors
+                    is the goal.</p>
+            </div>
 
-                <div class="query-block">
-                    <div class="query-header">
-                        <span>Error Rate Calculation (5xx Errors)</span>
-                        <button class="copy-btn" onclick="copyToClipboard('query-errors')"><i
-                                class="fa-regular fa-copy"></i> Copy</button>
-                    </div>
-                    <pre><code id="query-errors" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
+            <div class="query-block">
+                <div class="query-header">
+                    <span>Error Rate Calculation (5xx Errors)</span>
+                    <button class="copy-btn" onclick="copyToClipboard('query-errors')"><i
+                            class="fa-regular fa-copy"></i>
+                        Copy</button>
+                </div>
+                <pre><code id="query-errors" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
 | stats count as total_requests, count(eval(status>=500)) as error_count 
 | eval error_rate_percent = (error_count / total_requests) * 100 
 | fields error_rate_percent, error_count, total_requests</code></pre>
-                </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Saturation Section -->
-        <section class="card" id="saturation">
-            <div class="card-header">
-                <div class="icon-box saturation-icon">
-                    <i class="fa-solid fa-gauge-high"></i>
-                </div>
-                <div class="header-text">
-                    <h2>Saturation</h2>
-                    <p>How "full" your service is.</p>
-                </div>
+    <!-- Saturation Section -->
+    <section class="card" id="saturation">
+        <div class="card-header">
+            <div class="icon-box saturation-icon">
+                <i class="fa-solid fa-gauge-high"></i>
             </div>
-            <div class="card-content">
-                <div class="guideline">
-                    <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
-                    <p>High saturation leads to performance degradation. Monitor CPU, Memory, and Thread Pools.</p>
-                </div>
+            <div class="header-text">
+                <h2>Saturation</h2>
+                <p>How "full" your service is.</p>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="guideline">
+                <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
+                <p>High saturation leads to performance degradation. Monitor CPU, Memory, and Thread Pools.</p>
+            </div>
 
-                <div class="query-block">
-                    <div class="query-header">
-                        <span>Host CPU Usage Over Time</span>
-                        <button class="copy-btn" onclick="copyToClipboard('query-saturation')"><i
-                                class="fa-regular fa-copy"></i> Copy</button>
-                    </div>
-                    <pre><code id="query-saturation" class="language-splunk">index=os_metrics host=your_app_host 
+            <div class="query-block">
+                <div class="query-header">
+                    <span>Host CPU Usage Over Time</span>
+                    <button class="copy-btn" onclick="copyToClipboard('query-saturation')"><i
+                            class="fa-regular fa-copy"></i> Copy</button>
+                </div>
+                <pre><code id="query-saturation" class="language-splunk">index=os_metrics host=your_app_host 
 | timechart span=5m avg(cpu_user_percent) as cpu_usage 
 | eval threshold=80 
 | where cpu_usage > threshold</code></pre>
-                </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-    </main>
+</main>
 
-    <footer>
-        <p>Designed for SRE Excellence &bull; <a href="https://github.com/jogidev/SRE_Splunk">View on GitHub</a></p>
-    </footer>
+<footer>
+    <p>Designed for SRE Excellence &bull; <a href="https://github.com/jogidev/SRE_Splunk">View on GitHub</a></p>
+</footer>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 
 </html>
