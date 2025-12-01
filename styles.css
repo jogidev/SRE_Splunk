@@ -538,29 +538,6 @@ footer a:hover {
 
     /* Matrix Table */
     .table-container {
-        overflow-x: auto;
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-    }
-
-    .matrix-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-        text-align: left;
-    }
-
-    .matrix-table th,
-    .matrix-table td {
-        padding: 15px;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--text-secondary);
-    }
-
-    .matrix-table th {
-        background: rgba(0, 0, 0, 0.2);
-        color: var(--text-primary);
-        font-weight: 600;
         white-space: nowrap;
     }
 
@@ -579,6 +556,14 @@ footer a:hover {
         color: var(--accent-color);
         font-size: 0.85rem;
         border: 1px solid rgba(56, 189, 248, 0.1);
+    }
+
+    /* Matrix Table Gridlines */
+    .matrix-table th,
+    .matrix-table td {
+        border: 1px solid var(--border-color);
+        font-size: 0.85rem;
+        padding: 8px;
     }
 
     .layer-web {

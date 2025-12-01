@@ -64,7 +64,7 @@
                         <tbody>
                             <!-- Web Layer -->
                             <tr>
-                                <td rowspan="2" class="layer-web">Web</td>
+                                <td rowspan="3" class="layer-web">Web</td>
                                 <td>Nginx / Apache</td>
                                 <td>Access Logs</td>
                                 <td><code>access_combined</code></td>
@@ -72,12 +72,19 @@
                                 <td><code>^(\S+) \S+ \S+ \[([^\]]+)\] "(\S+) (\S+) \S+" (\d+) (\d+)</code></td>
                             </tr>
                             <tr>
-                                <td>Nginx / Apache</td>
-                                <td>Error Logs</td>
-                                <td><code>error_log</code></td>
-                                <td><i class="fa-solid fa-check text-success"></i> Process Monitoring</td>
-                                <td><code>^(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}) \[(\w+)\] (\d+)#(\d+): \*(\d+) (.+?)(?:, client: (.+?))?</code>
+                                <td>IIS (Windows)</td>
+                                <td>W3C Access Logs</td>
+                                <td><code>iis</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> IIS Module</td>
+                                <td><code>^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) (\S+) (\S+) (\S+) (\S+) (\d+) (\S+) (\d+) (\d+) (\d+) (\d+)</code>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td>Envoy (ECS Sidecar)</td>
+                                <td>Access Logs</td>
+                                <td><code>envoy:access</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> Container Tracing</td>
+                                <td><code>^\[([^\]]+)\] "(\S+) (\S+) \S+" (\d+) \S+ (\d+) (\d+)</code></td>
                             </tr>
 
                             <!-- App Layer -->
@@ -90,36 +97,44 @@
                                 <td><code>^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) (\w+) \[([^\]]+)\] (.+)</code></td>
                             </tr>
                             <tr>
-                                <td>Node.js / PM2</td>
-                                <td>App Logs (JSON)</td>
-                                <td><code>app_json</code></td>
-                                <td><i class="fa-solid fa-check text-success"></i> Services / Traces</td>
-                                <td><em>(Use JSON extraction)</em><br><code>KV_MODE = json</code></td>
+                                <td>ECS Fargate</td>
+                                <td>Container Stdout</td>
+                                <td><code>aws:ecs:fargate</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> AWS Integration</td>
+                                <td><em>(Use FireLens/Fluentbit to route as JSON)</em><br><code>KV_MODE = json</code>
+                                </td>
                             </tr>
                             <tr>
-                                <td>Java / JVM</td>
-                                <td>GC Logs</td>
-                                <td><code>gc_log</code></td>
-                                <td><i class="fa-solid fa-check text-success"></i> JVM Metrics</td>
-                                <td><code>^\[(\d+\.\d+)s\]\[(\w+)\]\[(\w+)\] (.+)</code></td>
+                                <td>.NET / Windows</td>
+                                <td>Event Logs</td>
+                                <td><code>XmlWinEventLog</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> .NET Agent</td>
+                                <td><em>(XML extraction handled natively)</em></td>
                             </tr>
 
                             <!-- DB Layer -->
                             <tr>
-                                <td rowspan="2" class="layer-db">DB</td>
+                                <td rowspan="3" class="layer-db">DB</td>
                                 <td>MySQL / Postgres</td>
                                 <td>Slow Query Log</td>
                                 <td><code>mysql_slow</code></td>
                                 <td><i class="fa-solid fa-check text-success"></i> Database Services</td>
-                                <td><code>^# Time: (\d{6}\s+\d{1,2}:\d{2}:\d{2})\s+# User@Host: (\S+)\[\S+\] @\s+\[(\S+)\]\s+# Query_time: ([\d\.]+)</code>
+                                <td><code>^# Time: (\d{6}\s+\d{1,2}:\d{2}:\d{2})\s+# User@Host: (\S+)\[\S+\] @\s+\[(\S+)\]</code>
                                 </td>
                             </tr>
                             <tr>
-                                <td>MySQL / Postgres</td>
+                                <td>MS SQL Server</td>
                                 <td>Error Log</td>
-                                <td><code>mysql_error</code></td>
-                                <td><i class="fa-solid fa-check text-success"></i> Process Availability</td>
-                                <td><code>^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (\d+) \[(\w+)\] \[([^\]]+)\] (.+)</code>
+                                <td><code>mssql:error</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> DB Insights</td>
+                                <td><code>^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{2}) (\w+) (.+)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Aurora Postgres</td>
+                                <td>Postgres Log</td>
+                                <td><code>postgres:log</code></td>
+                                <td><i class="fa-solid fa-check text-success"></i> AWS RDS Metrics</td>
+                                <td><code>^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w+) \[(\d+)\]: \[(\w+)-(\d+)\] user=(\S+),db=(\S+)</code>
                                 </td>
                             </tr>
                         </tbody>
@@ -156,7 +171,8 @@
                             <strong>Avoid Greedy Quantifiers</strong>
                             <p>Avoid <code>.*</code> where possible. Use specific character classes like
                                 <code>[^\]]+</code> (match everything except a closing bracket) or lazy quantifiers
-                                <code>.*?</code> to prevent backtracking.</p>
+                                <code>.*?</code> to prevent backtracking.
+                            </p>
                         </div>
                     </li>
                     <li>
@@ -164,7 +180,8 @@
                         <div>
                             <strong>Use JSON Where Possible</strong>
                             <p>Structured logging (JSON) eliminates the need for complex regex at search time. Set
-                                <code>KV_MODE = json</code> in <code>props.conf</code> for automatic extraction.</p>
+                                <code>KV_MODE = json</code> in <code>props.conf</code> for automatic extraction.
+                            </p>
                         </div>
                     </li>
                 </ul>
