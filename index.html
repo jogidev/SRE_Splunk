@@ -1,141 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Splunk Queries for SRE - Part 1</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <title>FreeMind-MMX Web</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
-<div class="card-content">
-    <div class="guideline">
-        <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
-        <p>High latency directly impacts user experience. Distinguish between successful requests and
-            errors, as error latency is often different.</p>
+<body>
+    <div id="toolbar">
+        <button id="btn-new">New Map</button>
+        <label for="file-input" class="button">Open .mm (and .mmx)</label>
+        <input type="file" id="file-input" multiple accept=".mm,.mmx" style="display:none;">
+        <button id="btn-save">Save (MMX)</button>
+        <button id="btn-help">Help</button>
+    </div>
+    <div id="workspace">
+        <svg id="connections"></svg>
+        <div id="nodes-container"></div>
     </div>
 
-    <div class="query-block">
-        <div class="query-header">
-            <span>Average & 95th Percentile Response Time</span>
-            <button class="copy-btn" onclick="copyToClipboard('query-latency')"><i class="fa-regular fa-copy"></i>
-                Copy</button>
-        </div>
-        <pre><code id="query-latency" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
-| timechart span=5m avg(duration) as avg_latency, p95(duration) as p95_latency 
-| eval sla_threshold=500 
-| where p95_latency > sla_threshold</code></pre>
-    </div>
-</div>
-</section>
-
-<!-- Traffic Section -->
-<section class="card" id="traffic">
-    <div class="card-header">
-        <div class="icon-box traffic-icon">
-            <i class="fa-solid fa-arrow-right-arrow-left"></i>
-        </div>
-        <div class="header-text">
-            <h2>Traffic</h2>
-            <p>A measure of how much demand is being placed on your system.</p>
+    <div id="help-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Help & Shortcuts</h2>
+            <ul>
+                <li><b>Enter</b>: Add Sibling Node</li>
+                <li><b>Tab / Insert</b>: Add Child Node</li>
+                <li><b>Delete</b>: Delete Node</li>
+                <li><b>Space</b>: Fold/Unfold Node</li>
+                <li><b>Double Click</b>: Edit Node Text</li>
+                <li><b>Arrow Keys</b>: Navigate</li>
+            </ul>
+            <h3>About FreeMind-MMX Web</h3>
+            <p>This is a web port of the FreeMind-MMX concept. It separates the mind map data into two files:</p>
+            <ul>
+                <li><b>.mm</b>: Contains the structure and text (clean content).</li>
+                <li><b>.mmx</b>: Contains volatile attributes like folded state (auxiliary data).</li>
+            </ul>
+            <p>When saving, both files are generated. When opening, select both files to restore the full state.</p>
         </div>
     </div>
-    <div class="card-content">
-        <div class="guideline">
-            <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
-            <p>Unexpected spikes can lead to saturation. Monitor requests per second (RPS) to understand load
-                patterns.</p>
-        </div>
 
-        <div class="query-block">
-            <div class="query-header">
-                <span>Requests Per Minute by Endpoint</span>
-                <button class="copy-btn" onclick="copyToClipboard('query-traffic')"><i class="fa-regular fa-copy"></i>
-                    Copy</button>
-            </div>
-            <pre><code id="query-traffic" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
-| timechart span=1m count as requests_per_min by uri_path 
-| addtotals</code></pre>
-        </div>
-    </div>
-</section>
-
-<!-- Errors Section -->
-<section class="card" id="errors">
-    <div class="card-header">
-        <div class="icon-box error-icon">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-        <div class="header-text">
-            <h2>Errors</h2>
-            <p>The rate of requests that fail.</p>
-        </div>
-    </div>
-    <div class="card-content">
-        <div class="guideline">
-            <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
-            <p>Explicit errors (5xx) and implicit errors (200 OK but wrong content) must be tracked. Zero errors
-                is the goal.</p>
-        </div>
-
-        <div class="query-block">
-            <div class="query-header">
-                <span>Error Rate Calculation (5xx Errors)</span>
-                <button class="copy-btn" onclick="copyToClipboard('query-errors')"><i class="fa-regular fa-copy"></i>
-                    Copy</button>
-            </div>
-            <pre><code id="query-errors" class="language-splunk">index=your_app_index sourcetype=your_app_sourcetype 
-| stats count as total_requests, count(eval(status>=500)) as error_count 
-| eval error_rate_percent = (error_count / total_requests) * 100 
-| fields error_rate_percent, error_count, total_requests</code></pre>
-        </div>
-    </div>
-</section>
-
-<!-- Saturation Section -->
-<section class="card" id="saturation">
-    <div class="card-header">
-        <div class="icon-box saturation-icon">
-            <i class="fa-solid fa-gauge-high"></i>
-        </div>
-        <div class="header-text">
-            <h2>Saturation</h2>
-            <p>How "full" your service is.</p>
-        </div>
-    </div>
-    <div class="card-content">
-        <div class="guideline">
-            <h3><i class="fa-solid fa-lightbulb"></i> Why it matters</h3>
-            <p>High saturation leads to performance degradation. Monitor CPU, Memory, and Thread Pools.</p>
-        </div>
-
-        <div class="query-block">
-            <div class="query-header">
-                <span>Host CPU Usage Over Time</span>
-                <button class="copy-btn" onclick="copyToClipboard('query-saturation')"><i
-                        class="fa-regular fa-copy"></i> Copy</button>
-            </div>
-            <pre><code id="query-saturation" class="language-splunk">index=os_metrics host=your_app_host 
-| timechart span=5m avg(cpu_user_percent) as cpu_usage 
-| eval threshold=80 
-| where cpu_usage > threshold</code></pre>
-        </div>
-    </div>
-</section>
-
-</main>
-
-<footer>
-    <p>Designed for SRE Excellence &bull; <a href="https://github.com/jogidev/SRE_Splunk">View on GitHub</a></p>
-</footer>
-
-<script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
-
 </html>
